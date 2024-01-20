@@ -1,4 +1,4 @@
-package section1
+package course
 
 object PartialFunctions extends App {
 
@@ -27,5 +27,5 @@ object PartialFunctions extends App {
     case x if x > 0 => println(s"$x is positive!")
   }
   println((swapSign andThen printIfPositive)(-1))
-
+  
 }
