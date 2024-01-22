@@ -16,7 +16,6 @@ object Concurrency extends App{
   })
   // Start both threads
   thread1.start()
-
   thread2.start()
   // Wait for both threads to finish
   thread1.join()
