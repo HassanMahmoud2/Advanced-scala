@@ -1,4 +1,4 @@
-package course
+package course.concurrentProgramming
 
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -67,14 +67,30 @@ object ProducerConsumer extends App{
       val random = new Random()
       while (true) {
         buffer.synchronized {
-          if (buffer.isEmpty) {
+          while (buffer.isEmpty) {
             println("consumer buffer is empty, waiting...")
             buffer.wait()
           }
           val element = buffer.dequeue()
-          println("element " + element + " is dequeued")
+          println("element " + element + " is dequeued by consumer")
           //notifying producer that there is free space in buffer it can continue producing
-          buffer.notify()
+          buffer.notifyAll()
+        }
+        Thread.sleep(random.nextInt(500))
+      }
+    })
+    val consumer2 = new Thread(() => {
+      val random = new Random()
+      while (true) {
+        buffer.synchronized {
+          while (buffer.isEmpty) {
+            println("consumer2 buffer is empty, waiting...")
+            buffer.wait()
+          }
+          val element = buffer.dequeue()
+          println("element " + element + " is dequeued by consumer 2")
+          //notifying producer that there is free space in buffer it can continue producing
+          buffer.notifyAll()
         }
         Thread.sleep(random.nextInt(500))
       }
@@ -89,16 +105,36 @@ object ProducerConsumer extends App{
             buffer.wait()
           }
           buffer.enqueue(element)
-          println("element " + element + " is produced")
+          println("element " + element + " is produced by producer")
           element += 1
           //notifying consumer that there is an element in buffer so, it can consume it
-          buffer.notify()
+          buffer.notifyAll()
         }
         Thread.sleep(random.nextInt(500))
       }
     })
-    consumer.start()
+    val producer2 = new Thread(() => {
+      val random = new Random()
+      var element = 0
+      while (true) {
+        buffer.synchronized {
+          if (buffer.size == capacity) {
+            println("producer buffer is full, waiting...")
+            buffer.wait()
+          }
+          buffer.enqueue(element)
+          println("element " + element + " is produced by producer 2")
+          element += 1
+          //notifying consumer that there is an element in buffer so, it can consume it
+          buffer.notifyAll()
+        }
+        Thread.sleep(random.nextInt(500))
+      }
+    })
     producer.start()
+    producer2.start()
+    consumer.start()
+    consumer2.start()
   }
   prodConsLargeBuffer()
 }

@@ -1,4 +1,4 @@
-package course
+package course.concurrentProgramming
 
 object Concurrency extends App{
 
